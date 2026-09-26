@@ -116,5 +116,55 @@ button:disabled {
 
 .label {
   color: #9ba8ca;
-  font-size
+  font-size: 13px;
+}
+
+
+/* =================================
+   TABLE
+================================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 11px;
+  border-bottom: 1px solid #263252;
+  font-size: 14px;
+}
+
+th {
+  color: #aab5d6;
+}
+
+
+/* =================================
+   SEVERITY COLORS
+================================= */
+
+.critical {
+  color: #ff6b6b;
+}
+
+.high {
+  color: #ffad5c;
+}
+
+.medium {
+  color: #ffd166;
+}
+
+.ok {
+  color: #6ee7b7;
+}
+
+
+/* =================================
+   TEXT
+=====================
 ```
