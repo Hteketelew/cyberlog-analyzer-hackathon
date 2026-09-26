@@ -1,16 +1,28 @@
+```python
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from openai import OpenAI
 from collections import Counter
 import re
 import os
 
+
+# ==============================
+# FASTAPI APP
+# ==============================
+
 app = FastAPI(
     title="CyberLog Analyzer",
     version="1.0.0"
 )
+
+
+# ==============================
+# CORS
+# ==============================
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,15 +32,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# ==============================
+# PATHS
+# ==============================
+
 BASE_DIR = Path(__file__).resolve().parent
+
 INDEX_FILE = BASE_DIR / "static" / "index.html"
 
-# OpenAI
-client = OpenAI(
-    api_key=os.environ["OPENAI_API_KEY"]
+STATIC_DIR = BASE_DIR / "static"
+
+
+# ==============================
+# STATIC FILES
+# ==============================
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static"
 )
 
+
+# ==============================
+# OPENAI
+# ==============================
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+client = None
+
+if OPENAI_API_KEY:
+    client = OpenAI(
+        api_key=OPENAI_API_KEY
+    )
+
+
+# ==============================
+# SECURITY PATTERNS
+# ==============================
+
 PATTERNS = [
+
     (
         "Brute Force / Failed Login",
         r"(failed login|login failed|authentication failure|invalid password)",
@@ -60,26 +106,49 @@ PATTERNS = [
     ),
 ]
 
+
+# ==============================
+# IP REGEX
+# ==============================
+
 IP_RE = re.compile(
     r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
 )
 
 
+# ==============================
+# HOME PAGE
+# ==============================
+
 @app.get("/")
 def home():
-    return FileResponse(INDEX_FILE)
 
+    return FileResponse(
+        INDEX_FILE
+    )
+
+
+# ==============================
+# HEALTH CHECK
+# ==============================
 
 @app.get("/api/health")
 def health():
+
     return {
         "status": "ok",
         "service": "CyberLog Analyzer"
     }
 
 
+# ==============================
+# LOG ANALYZER
+# ==============================
+
 @app.post("/api/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(
+    file: UploadFile = File(...)
+):
 
     content = await file.read()
 
@@ -98,53 +167,106 @@ async def analyze(file: UploadFile = File(...)):
 
     ip_counter = Counter()
 
-    for line_number, line in enumerate(lines, start=1):
+
+    # ==============================
+    # ANALYZE EACH LINE
+    # ==============================
+
+    for line_number, line in enumerate(
+        lines,
+        start=1
+    ):
+
+        # Find IP addresses
 
         ips = IP_RE.findall(line)
 
         for ip in ips:
+
             ip_counter[ip] += 1
+
+
+        # Convert line to lowercase
 
         lower = line.lower()
 
+
+        # Check security patterns
+
         for name, pattern, severity in PATTERNS:
 
-            if re.search(pattern, lower):
+            if re.search(
+                pattern,
+                lower
+            ):
 
                 alerts.append({
+
                     "line": line_number,
+
                     "type": name,
+
                     "severity": severity,
+
                     "message": line,
-                    "ip": ips[0] if ips else "Unknown"
+
+                    "ip": (
+                        ips[0]
+                        if ips
+                        else "Unknown"
+                    )
                 })
 
                 break
+
+
+    # ==============================
+    # SEVERITY COUNTS
+    # ==============================
 
     severity_counts = Counter(
         alert["severity"]
         for alert in alerts
     )
 
+
+    # ==============================
+    # RESPONSE
+    # ==============================
+
     return {
+
         "filename": file.filename,
+
         "total_lines": len(lines),
 
         "alerts": alerts,
 
         "summary": {
-            "critical": severity_counts["Critical"],
-            "high": severity_counts["High"],
-            "medium": severity_counts["Medium"],
-            "low": severity_counts["Low"],
+
+            "critical":
+                severity_counts["Critical"],
+
+            "high":
+                severity_counts["High"],
+
+            "medium":
+                severity_counts["Medium"],
+
+            "low":
+                severity_counts["Low"],
         },
 
         "top_ips": [
+
             {
                 "ip": ip,
                 "count": count
             }
-            for ip, count in ip_counter.most_common(10)
+
+            for ip, count
+            in ip_counter.most_common(10)
+
         ]
     }
 
@@ -158,24 +280,13 @@ async def chat(data: dict):
 
     try:
 
-        message = data.get("message", "").strip()
+        message = data.get(
+            "message",
+            ""
+        ).strip()
+
+
+        # Check message
 
         if not message:
-            return {
-                "error": "Message is required"
-            }
-
-        response = client.responses.create(
-            model="gpt-5",
-            input=message
-        )
-
-        return {
-            "reply": response.output_text
-        }
-
-    except Exception as e:
-
-        return {
-            "error": str(e)
-        }
+```
