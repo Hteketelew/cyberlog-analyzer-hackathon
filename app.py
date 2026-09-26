@@ -13,12 +13,6 @@ title="CyberLog Analyzer",
 version="1.0.0"
 )
 
-# ==========================================
-
-# CORS
-
-# ==========================================
-
 app.add_middleware(
 CORSMiddleware,
 allow_origins=["*"],
@@ -27,34 +21,16 @@ allow_methods=["*"],
 allow_headers=["*"],
 )
 
-# ==========================================
-
-# PATHS
-
-# ==========================================
-
 BASE_DIR = Path(**file**).resolve().parent
 
 STATIC_DIR = BASE_DIR / "static"
 INDEX_FILE = STATIC_DIR / "index.html"
-
-# ==========================================
-
-# STATIC FILES
-
-# ==========================================
 
 app.mount(
 "/static",
 StaticFiles(directory=STATIC_DIR),
 name="static"
 )
-
-# ==========================================
-
-# OPENAI
-
-# ==========================================
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -64,12 +40,6 @@ if OPENAI_API_KEY:
 client = OpenAI(
 api_key=OPENAI_API_KEY
 )
-
-# ==========================================
-
-# LOG DETECTION PATTERNS
-
-# ==========================================
 
 PATTERNS = [
 (
@@ -99,33 +69,13 @@ r"(malware|trojan|ransomware|virus)",
 )
 ]
 
-# ==========================================
-
-# IP ADDRESS PATTERN
-
-# ==========================================
-
 IP_RE = re.compile(
 r"\b(?:\d{1,3}.){3}\d{1,3}\b"
 )
 
-# ==========================================
-
-# HOME PAGE
-
-# ==========================================
-
 @app.get("/")
 def home():
-return FileResponse(
-INDEX_FILE
-)
-
-# ==========================================
-
-# HEALTH CHECK
-
-# ==========================================
+return FileResponse(INDEX_FILE)
 
 @app.get("/api/health")
 def health():
@@ -134,20 +84,13 @@ return {
 "service": "CyberLog Analyzer"
 }
 
-# ==========================================
-
-# LOG ANALYZER
-
-# ==========================================
-
 @app.post("/api/analyze")
 async def analyze(
 file: UploadFile = File(...)
 ):
-
-```
 content = await file.read()
 
+```
 text = content.decode(
     "utf-8",
     errors="replace"
@@ -160,19 +103,12 @@ lines = [
 ]
 
 alerts = []
-
 ip_counter = Counter()
-
-
-# --------------------------------------
-# Analyze each log line
-# --------------------------------------
 
 for line_number, line in enumerate(
     lines,
     start=1
 ):
-
     ips = IP_RE.findall(line)
 
     for ip in ips:
@@ -181,12 +117,10 @@ for line_number, line in enumerate(
     lower = line.lower()
 
     for name, pattern, severity in PATTERNS:
-
         if re.search(
             pattern,
             lower
         ):
-
             alerts.append({
                 "line": line_number,
                 "type": name,
@@ -194,36 +128,23 @@ for line_number, line in enumerate(
                 "message": line,
                 "ip": ips[0] if ips else "Unknown"
             })
-
             break
-
-
-# --------------------------------------
-# Severity statistics
-# --------------------------------------
 
 severity_counts = Counter(
     alert["severity"]
     for alert in alerts
 )
 
-
-# --------------------------------------
-# Response
-# --------------------------------------
-
 return {
     "filename": file.filename,
     "total_lines": len(lines),
     "alerts": alerts,
-
     "summary": {
         "critical": severity_counts["Critical"],
         "high": severity_counts["High"],
         "medium": severity_counts["Medium"],
         "low": severity_counts["Low"]
     },
-
     "top_ips": [
         {
             "ip": ip,
@@ -234,42 +155,27 @@ return {
 }
 ```
 
-# ==========================================
-
-# AI CHAT
-
-# ==========================================
-
 @app.post("/api/chat")
 async def chat(data: dict):
+try:
+message = data.get(
+"message",
+""
+).strip()
 
 ```
-try:
-
-    message = data.get(
-        "message",
-        ""
-    ).strip()
-
-
     if not message:
-
         return {
             "error": "Message is required."
         }
 
-
     if client is None:
-
         return {
             "error": "OpenAI API key is not configured."
         }
 
-
     response = client.responses.create(
-
         model="gpt-5",
-
         instructions=(
             "You are the AI cybersecurity assistant "
             "for CyberLog Analyzer. "
@@ -279,18 +185,14 @@ try:
             "defensive cybersecurity. "
             "Give clear and practical answers."
         ),
-
         input=message
     )
-
 
     return {
         "reply": response.output_text
     }
 
-
 except Exception as e:
-
     return {
         "error": f"AI request failed: {str(e)}"
     }
