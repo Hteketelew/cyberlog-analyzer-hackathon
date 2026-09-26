@@ -1,19 +1,31 @@
+```html
 <!doctype html>
 <html lang="en">
 
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
 
   <title>CyberLog Analyzer</title>
-<link rel="stylesheet" href="/static/style.css">
-  <script src="/static/script.js"></script>
-  <link rel="stylesheet" href="/static/style.css">
+
+  <!-- CSS -->
+  <link
+    rel="stylesheet"
+    href="/static/style.css"
+  >
+
 </head>
+
 
 <body>
 
 <div class="wrap">
+
 
   <!-- =========================
        HEADER
@@ -54,7 +66,10 @@
         Analyze Logs
       </button>
 
-      <div id="status" class="small"></div>
+      <div
+        id="status"
+        class="small"
+      ></div>
 
     </div>
 
@@ -65,126 +80,104 @@
        DASHBOARD
   ========================== -->
 
-  <div id="dashboard" style="display:none">
+  <div
+    id="dashboard"
+    style="display:none"
+  >
 
     <div class="grid">
 
-      <div class="metric">
-        <span class="label">Log Lines</span>
-        <b id="total">0</b>
-      </div>
+
+      <!-- Log Lines -->
 
       <div class="metric">
-        <span class="label">Critical</span>
-        <b id="critical" class="critical">0</b>
+
+        <span class="label">
+          Log Lines
+        </span>
+
+        <b id="total">
+          0
+        </b>
+
       </div>
 
-      <div class="metric">
-        <span class="label">High</span>
-        <b id="high" class="high">0</b>
-      </div>
+
+      <!-- Critical -->
 
       <div class="metric">
-        <span class="label">Medium</span>
-        <b id="medium" class="medium">0</b>
+
+        <span class="label">
+          Critical
+        </span>
+
+        <b
+          id="critical"
+          class="critical"
+        >
+          0
+        </b>
+
+      </div>
+
+
+      <!-- High -->
+
+      <div class="metric">
+
+        <span class="label">
+          High
+        </span>
+
+        <b
+          id="high"
+          class="high"
+        >
+          0
+        </b>
+
+      </div>
+
+
+      <!-- Medium -->
+
+      <div class="metric">
+
+        <span class="label">
+          Medium
+        </span>
+
+        <b
+          id="medium"
+          class="medium"
+        >
+          0
+        </b>
+
       </div>
 
     </div>
 
 
-    <!-- Alerts -->
+    <!-- =========================
+         DETECTED ALERTS
+    ========================== -->
 
     <div class="card">
 
-      <h2>Detected Alerts</h2>
+      <h2>
+        Detected Alerts
+      </h2>
 
       <table>
 
         <thead>
 
           <tr>
-            <th>Severity</th>
-            <th>Type</th>
-            <th>IP</th>
-            <th>Evidence</th>
-          </tr>
 
-        </thead>
+            <th>
+              Severity
+            </th>
 
-        <tbody id="alerts"></tbody>
-
-      </table>
-
-    </div>
-
-
-    <!-- IP Addresses -->
-
-    <div class="card">
-
-      <h2>Top Source IPs</h2>
-
-      <div id="ips" class="small"></div>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       AI ASSISTANT
-  ========================== -->
-
-  <div class="card ai-chat">
-
-    <h2>🤖 AI Cybersecurity Assistant</h2>
-
-    <p class="small">
-      Ask questions about cybersecurity, security logs,
-      suspicious activity, or detected threats.
-    </p>
-
-
-    <div id="chatBox" class="chat-box">
-
-      <div class="ai-message">
-
-        <strong>AI:</strong>
-
-        Hello! I am your cybersecurity assistant.
-        How can I help you?
-
-      </div>
-
-    </div>
-
-
-    <div class="chat-input">
-
-      <input
-        type="text"
-        id="messageInput"
-        placeholder="Ask a cybersecurity question..."
-        autocomplete="off"
-      >
-
-      <button
-        id="sendButton"
-        onclick="sendMessage()"
-      >
-        Send
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- JavaScript -->
-
-<script src="/static/script.js"></script>
-
-</body>
-</html>
+            <th>
+```
