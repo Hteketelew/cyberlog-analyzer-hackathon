@@ -111,4 +111,41 @@ async def analyze(file: UploadFile = File(...)):
             }
             for ip, count in ip_counter.most_common(10)
         ]
-    }
+    }from flask import Flask, request, jsonify, render_template
+from openai import OpenAI
+import os
+
+app = Flask(__name__)
+
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    try:
+        data = request.get_json()
+        message = data.get("message", "")
+
+        if not message:
+            return jsonify({"error": "Message is required"}), 400
+
+        response = client.responses.create(
+            model="gpt-5",
+            input=message
+        )
+
+        return jsonify({
+            "reply": response.output_text
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
