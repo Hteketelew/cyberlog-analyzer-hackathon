@@ -72,39 +72,31 @@ api_key=OPENAI_API_KEY
 # ==========================================
 
 PATTERNS = [
-
-```
 (
-    "Brute Force / Failed Login",
-    r"(failed login|login failed|authentication failure|invalid password)",
-    "High"
+"Brute Force / Failed Login",
+r"(failed login|login failed|authentication failure|invalid password)",
+"High"
 ),
-
 (
-    "SQL Injection Attempt",
-    r"(union\s+select|or\s+1=1|select\s+.*from|drop\s+table)",
-    "Critical"
+"SQL Injection Attempt",
+r"(union\s+select|or\s+1=1|select\s+.*from|drop\s+table)",
+"Critical"
 ),
-
 (
-    "Suspicious Command",
-    r"(powershell|cmd\.exe|wget\s+http|curl\s+http|nc\s+-e)",
-    "High"
+"Suspicious Command",
+r"(powershell|cmd.exe|wget\s+http|curl\s+http|nc\s+-e)",
+"High"
 ),
-
 (
-    "Unauthorized Access",
-    r"(unauthorized|access denied|permission denied|forbidden)",
-    "Medium"
+"Unauthorized Access",
+r"(unauthorized|access denied|permission denied|forbidden)",
+"Medium"
 ),
-
 (
-    "Malware Indicator",
-    r"(malware|trojan|ransomware|virus)",
-    "Critical"
+"Malware Indicator",
+r"(malware|trojan|ransomware|virus)",
+"Critical"
 )
-```
-
 ]
 
 # ==========================================
@@ -125,12 +117,9 @@ r"\b(?:\d{1,3}.){3}\d{1,3}\b"
 
 @app.get("/")
 def home():
-
-```
 return FileResponse(
-    INDEX_FILE
+INDEX_FILE
 )
-```
 
 # ==========================================
 
@@ -140,13 +129,10 @@ return FileResponse(
 
 @app.get("/api/health")
 def health():
-
-```
 return {
-    "status": "ok",
-    "service": "CyberLog Analyzer"
+"status": "ok",
+"service": "CyberLog Analyzer"
 }
-```
 
 # ==========================================
 
@@ -202,19 +188,11 @@ for line_number, line in enumerate(
         ):
 
             alerts.append({
-
                 "line": line_number,
-
                 "type": name,
-
                 "severity": severity,
-
                 "message": line,
-
-                "ip": ips[0]
-                if ips
-                else "Unknown"
-
+                "ip": ips[0] if ips else "Unknown"
             })
 
             break
@@ -235,37 +213,24 @@ severity_counts = Counter(
 # --------------------------------------
 
 return {
-
     "filename": file.filename,
-
     "total_lines": len(lines),
-
     "alerts": alerts,
 
     "summary": {
-
         "critical": severity_counts["Critical"],
-
         "high": severity_counts["High"],
-
         "medium": severity_counts["Medium"],
-
         "low": severity_counts["Low"]
-
     },
 
     "top_ips": [
-
         {
             "ip": ip,
             "count": count
         }
-
-        for ip, count
-        in ip_counter.most_common(10)
-
+        for ip, count in ip_counter.most_common(10)
     ]
-
 }
 ```
 
@@ -285,4 +250,46 @@ try:
         "message",
         ""
     ).strip()
+
+
+    if not message:
+        return {
+            "error": "Message is required."
+        }
+
+
+    if client is None:
+        return {
+            "error": "OpenAI API key is not configured."
+        }
+
+
+    response = client.responses.create(
+
+        model="gpt-5",
+
+        instructions=(
+            "You are the AI cybersecurity assistant "
+            "for CyberLog Analyzer. "
+            "Help users understand security logs, "
+            "alerts, suspicious activity, network "
+            "security, malware indicators, and "
+            "defensive cybersecurity. "
+            "Give clear and practical answers."
+        ),
+
+        input=message
+    )
+
+
+    return {
+        "reply": response.output_text
+    }
+
+
+except Exception as e:
+
+    return {
+        "error": f"AI request failed: {str(e)}"
+    }
 ```
