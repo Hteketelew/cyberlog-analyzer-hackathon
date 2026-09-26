@@ -1,185 +1,189 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>CyberLog Analyzer</title>
-  <style>
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:#0b1020;color:#eef2ff}
-    .wrap{max-width:1100px;margin:auto;padding:28px 18px}.hero{padding:24px 0}
-    h1{margin:0 0 8px;font-size:38px}.sub{color:#aab5d6}.card{background:#121a2e;border:1px solid #263252;border-radius:16px;padding:20px;margin:18px 0}
-    .upload{border:2px dashed #40507d;padding:30px;text-align:center;border-radius:14px}
-    button{background:#6d5dfc;color:white;border:0;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer}
-    input[type=file]{margin:12px 0}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .metric{background:#0e1629;padding:18px;border-radius:12px}.metric b{font-size:28px;display:block}.label{color:#9ba8ca;font-size:13px}
-    table{width:100%;border-collapse:collapse;margin-top:14px}th,td{text-align:left;padding:11px;border-bottom:1px solid #263252;font-size:14px}
-    .critical{color:#ff6b6b}.high{color:#ffad5c}.medium{color:#ffd166}.ok{color:#6ee7b7}
-    .small{font-size:13px;color:#9ba8ca}.error{color:#ff8a8a}.pill{padding:4px 8px;border-radius:999px;background:#222d49}
-    @media(max-width:700px){.grid{grid-template-columns:1fr 1fr}h1{font-size:30px}}
-  </style>
+
+  <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
+
 <div class="wrap">
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
   <div class="hero">
+
     <h1>🛡️ CyberLog Analyzer</h1>
-    <div class="sub">A lightweight blue-team dashboard for detecting suspicious activity in security logs.</div>
+
+    <div class="sub">
+      A lightweight blue-team dashboard for detecting suspicious activity in security logs.
+    </div>
+
   </div>
+
+
+  <!-- =========================
+       LOG UPLOAD
+  ========================== -->
 
   <div class="card">
+
     <div class="upload">
-      <strong>Upload a .log or .txt file</strong><br>
-      <input id="file" type="file" accept=".log,.txt">
-      <br><button onclick="analyze()">Analyze Logs</button>
+
+      <strong>Upload a .log or .txt file</strong>
+
+      <br>
+
+      <input
+        id="file"
+        type="file"
+        accept=".log,.txt"
+      >
+
+      <br>
+
+      <button onclick="analyze()">
+        Analyze Logs
+      </button>
+
       <div id="status" class="small"></div>
+
     </div>
+
   </div>
+
+
+  <!-- =========================
+       DASHBOARD
+  ========================== -->
 
   <div id="dashboard" style="display:none">
+
     <div class="grid">
-      <div class="metric"><span class="label">Log Lines</span><b id="total">0</b></div>
-      <div class="metric"><span class="label">Critical</span><b id="critical" class="critical">0</b></div>
-      <div class="metric"><span class="label">High</span><b id="high" class="high">0</b></div>
-      <div class="metric"><span class="label">Medium</span><b id="medium" class="medium">0</b></div>
+
+      <div class="metric">
+        <span class="label">Log Lines</span>
+        <b id="total">0</b>
+      </div>
+
+      <div class="metric">
+        <span class="label">Critical</span>
+        <b id="critical" class="critical">0</b>
+      </div>
+
+      <div class="metric">
+        <span class="label">High</span>
+        <b id="high" class="high">0</b>
+      </div>
+
+      <div class="metric">
+        <span class="label">Medium</span>
+        <b id="medium" class="medium">0</b>
+      </div>
+
     </div>
 
+
+    <!-- Alerts -->
+
     <div class="card">
+
       <h2>Detected Alerts</h2>
+
       <table>
-        <thead><tr><th>Severity</th><th>Type</th><th>IP</th><th>Evidence</th></tr></thead>
+
+        <thead>
+
+          <tr>
+            <th>Severity</th>
+            <th>Type</th>
+            <th>IP</th>
+            <th>Evidence</th>
+          </tr>
+
+        </thead>
+
         <tbody id="alerts"></tbody>
+
       </table>
+
     </div>
+
+
+    <!-- IP Addresses -->
 
     <div class="card">
+
       <h2>Top Source IPs</h2>
+
       <div id="ips" class="small"></div>
+
     </div>
+
   </div>
-</div>
 
-<script>
-async function analyze(){
-  const file=document.getElementById('file').files[0];
-  const status=document.getElementById('status');
-  if(!file){status.innerHTML='<span class="error">Please select a log file.</span>';return;}
-  status.textContent='Analyzing...';
-  const fd=new FormData(); fd.append('file',file);
-  try{
-    const r=await fetch('/api/analyze',{method:'POST',body:fd});
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.detail||'Analysis failed');
-    document.getElementById('dashboard').style.display='block';
-    document.getElementById('total').textContent=d.total_lines;
-    document.getElementById('critical').textContent=d.summary.critical;
-    document.getElementById('high').textContent=d.summary.high;
-    document.getElementById('medium').textContent=d.summary.medium;
-    document.getElementById('alerts').innerHTML=d.alerts.map(a =>
-      `<tr><td class="${a.severity.toLowerCase()}"><b>${a.severity}</b></td><td>${a.type}</td><td>${a.ip}</td><td>${escapeHtml(a.message)}</td></tr>`
-    ).join('') || '<tr><td colspan="4" class="ok">No suspicious activity detected.</td></tr>';
-    document.getElementById('ips').innerHTML=d.top_ips.map(x=>`<span class="pill">${x.ip}: ${x.count}</span>`).join(' &nbsp; ');
-    status.innerHTML=`<span class="ok">Analysis complete: ${d.filename}</span>`;
-  }catch(e){status.innerHTML=`<span class="error">${e.message}</span>`;}
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-</script>
-  <div class="ai-chat">
-    <h2>AI Assistant</h2>
 
-    <div id="chatBox"></div>
+  <!-- =========================
+       AI ASSISTANT
+  ========================== -->
+
+  <div class="card ai-chat">
+
+    <h2>🤖 AI Cybersecurity Assistant</h2>
+
+    <p class="small">
+      Ask questions about cybersecurity, security logs,
+      suspicious activity, or detected threats.
+    </p>
+
+
+    <div id="chatBox" class="chat-box">
+
+      <div class="ai-message">
+
+        <strong>AI:</strong>
+
+        Hello! I am your cybersecurity assistant.
+        How can I help you?
+
+      </div>
+
+    </div>
+
 
     <div class="chat-input">
-        <input
-            type="text"
-            id="messageInput"
-            placeholder="Ask me anything..."
-        />
 
-        <button onclick="sendMessage()">Send</button>
+      <input
+        type="text"
+        id="messageInput"
+        placeholder="Ask a cybersecurity question..."
+        autocomplete="off"
+      >
+
+      <button
+        id="sendButton"
+        onclick="sendMessage()"
+      >
+        Send
+      </button>
+
     </div>
+
+  </div>
+
 </div>
 
-<script>
-async function sendMessage() {
-    const input = document.getElementById("messageInput");
-    const chatBox = document.getElementById("chatBox");
 
-    const message = input.value.trim();
+<!-- JavaScript -->
 
-    if (!message) {
-        return;
-    }
+<script src="/static/script.js"></script>
 
-    // Show user's message
-    chatBox.innerHTML += `
-        <p><strong>You:</strong> ${message}</p>
-    `;
-
-    input.value = "";
-
-    try {
-        const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                message: message
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.reply) {
-            chatBox.innerHTML += `
-                <p><strong>AI:</strong> ${data.reply}</p>
-            `;
-        } else {
-            chatBox.innerHTML += `
-                <p><strong>Error:</strong> ${data.error}</p>
-            `;
-        }
-
-    } catch (error) {
-        chatBox.innerHTML += `
-            <p><strong>Error:</strong> Could not connect to AI.</p>
-        `;
-
-        console.error(error);
-    }
-}<style>
-.ai-chat {
-    width: 500px;
-    max-width: 90%;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-}
-
-#chatBox {
-    min-height: 200px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-}
-
-.chat-input {
-    display: flex;
-    gap: 10px;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 10px;
-}
-
-.chat-input button {
-    padding: 10px 20px;
-    cursor: pointer;
-}
-</style>
-</script>
 </body>
 </html>
