@@ -1,0 +1,10 @@
+2026-09-26 09:01:02 INFO  192.168.1.20 user login successful
+2026-09-26 09:02:10 WARN  10.0.0.15 failed login for user admin
+2026-09-26 09:02:12 WARN  10.0.0.15 failed login for user admin
+2026-09-26 09:02:14 WARN  10.0.0.15 failed login for user admin
+2026-09-26 09:02:16 WARN  10.0.0.15 failed login for user admin
+2026-09-26 09:02:18 WARN  10.0.0.15 failed login for user admin
+2026-09-26 09:05:33 ALERT 185.20.10.4 unauthorized access to /admin
+2026-09-26 09:07:11 ALERT 185.20.10.4 union select username,password from users
+2026-09-26 09:09:21 INFO  192.168.1.21 user login successful
+2026-09-26 09:11:09 ALERT 172.16.0.8 powershell -enc suspicious_command
