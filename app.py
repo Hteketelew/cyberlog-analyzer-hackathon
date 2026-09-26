@@ -102,7 +102,7 @@ PATTERNS = [
     "Malware Indicator",
     r"(malware|trojan|ransomware|virus)",
     "Critical"
-),
+)
 ```
 
 ]
@@ -244,17 +244,13 @@ return {
 
     "summary": {
 
-        "critical":
-            severity_counts["Critical"],
+        "critical": severity_counts["Critical"],
 
-        "high":
-            severity_counts["High"],
+        "high": severity_counts["High"],
 
-        "medium":
-            severity_counts["Medium"],
+        "medium": severity_counts["Medium"],
 
-        "low":
-            severity_counts["Low"]
+        "low": severity_counts["Low"]
 
     },
 
@@ -289,57 +285,4 @@ try:
         "message",
         ""
     ).strip()
-
-
-    if not message:
-
-        return {
-            "error":
-                "Message is required."
-        }
-
-
-    if client is None:
-
-        return {
-            "error":
-                "OpenAI API key is not configured."
-        }
-
-
-    response = client.responses.create(
-
-        model="gpt-5",
-
-        instructions=(
-            "You are the AI cybersecurity "
-            "assistant for CyberLog Analyzer. "
-            "Help users understand security logs, "
-            "alerts, suspicious activity, network "
-            "security, malware indicators, and "
-            "defensive cybersecurity. "
-            "Give clear and practical answers."
-        ),
-
-        input=message
-
-    )
-
-
-    return {
-
-        "reply":
-            response.output_text
-
-    }
-
-
-except Exception as e:
-
-    return {
-
-        "error":
-            f"AI request failed: {str(e)}"
-
-    }
 ```
