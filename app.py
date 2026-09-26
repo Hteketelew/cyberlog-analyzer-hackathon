@@ -234,4 +234,64 @@ return {
 }
 ```
 
-# ==============================
+# ==========================================
+
+# AI CHAT
+
+# ==========================================
+
+@app.post("/api/chat")
+async def chat(data: dict):
+
+```
+try:
+
+    message = data.get(
+        "message",
+        ""
+    ).strip()
+
+
+    if not message:
+
+        return {
+            "error": "Message is required."
+        }
+
+
+    if client is None:
+
+        return {
+            "error": "OpenAI API key is not configured."
+        }
+
+
+    response = client.responses.create(
+
+        model="gpt-5",
+
+        instructions=(
+            "You are the AI cybersecurity assistant "
+            "for CyberLog Analyzer. "
+            "Help users understand security logs, "
+            "alerts, suspicious activity, network "
+            "security, malware indicators, and "
+            "defensive cybersecurity. "
+            "Give clear and practical answers."
+        ),
+
+        input=message
+    )
+
+
+    return {
+        "reply": response.output_text
+    }
+
+
+except Exception as e:
+
+    return {
+        "error": f"AI request failed: {str(e)}"
+    }
+```
