@@ -146,7 +146,40 @@ async function sendMessage() {
 
         console.error(error);
     }
+}<style>
+.ai-chat {
+    width: 500px;
+    max-width: 90%;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
 }
+
+#chatBox {
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+</style>
 </script>
 </body>
 </html>
